@@ -1,5 +1,7 @@
 # config-stack-py
 
+[![Tests](https://github.com/joecklau/config-stack-py/actions/workflows/tests.yml/badge.svg)](https://github.com/joecklau/config-stack-py/actions/workflows/tests.yml)
+
 `config-stack-py` is a small generic YAML/JSON/TOML config composition library.
 
 It understands files, stack layers, recursive dictionary merge, final overrides,
