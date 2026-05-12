@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "config-stack-py"
+version = "0.1.0"
+description = "Small generic YAML/JSON config stack composer."
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "PyYAML>=6.0",
+    "tomli>=2.0; python_version < '3.11'",
+]
+
+[dependency-groups]
+dev = [
+    "pytest",
+    "ruff>=0.8.0",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.uv]
+default-groups = ["dev"]
