@@ -26,4 +26,3 @@ def resolve_relative_path(source_path: Path | str, relative: str) -> Path:
     if candidate.is_absolute():
         return candidate
     return (Path(source_path).parent / candidate).resolve()
-

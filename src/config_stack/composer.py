@@ -71,7 +71,9 @@ def compose_document(
     resolved_path = Path(path).resolve()
     active = set() if visited is None else set(visited)
     if resolved_path in active:
-        raise ConfigStackError(f"Config composition cycle detected at '{resolved_path}'.")
+        raise ConfigStackError(
+            f"Config composition cycle detected at '{resolved_path}'."
+        )
 
     payload = load_mapping_file(resolved_path)
     combined: dict[str, Any] = {}

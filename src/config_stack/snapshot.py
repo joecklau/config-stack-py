@@ -24,4 +24,3 @@ def write_resolved_snapshot(config: Mapping[str, Any], path: Path | str) -> Path
                 allow_unicode=False,
             )
     return snapshot_path
-

@@ -42,4 +42,3 @@ def expand_env_vars(
         return match.group(0)
 
     return _ENV_PATTERN.sub(replace, value)
-

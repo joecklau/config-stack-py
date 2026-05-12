@@ -101,4 +101,3 @@ value: ${CONFIG_STACK_TEST_VALUE:-fallback}
     result = compose_config_file(stack, expand_env=True)
 
     assert result.config["value"] == "fallback"
-

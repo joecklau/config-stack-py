@@ -20,4 +20,3 @@ def test_deep_merge_replaces_lists_and_scalars() -> None:
         "scalar": "override",
     }
     assert base["nested"]["list"] == ["old"]
-

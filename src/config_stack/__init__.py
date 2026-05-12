@@ -26,4 +26,3 @@ __all__ = [
     "resolve_relative_path",
     "write_resolved_snapshot",
 ]
-
