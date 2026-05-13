@@ -40,6 +40,7 @@ def compose_config_file(
         config = _compose_stack_file(
             source_path,
             payload,
+            stack_kind=stack_kind,
             expand_env=expand_env,
             strict_env=strict_env,
         )
@@ -111,20 +112,41 @@ def _compose_stack_file(
     stack_path: Path,
     stack_payload: dict[str, Any],
     *,
+    stack_kind: str,
+    visited: set[Path] | None = None,
     expand_env: bool,
     strict_env: bool,
 ) -> dict[str, Any]:
+    resolved_stack_path = stack_path.resolve()
+    active = set() if visited is None else set(visited)
+    if resolved_stack_path in active:
+        raise ConfigStackError(
+            f"Config composition cycle detected at '{resolved_stack_path}'."
+        )
+    active.add(resolved_stack_path)
+
     composed: dict[str, Any] = {}
-    visited = {stack_path.resolve()}
 
     for relative in as_path_list(stack_payload.get("layers")):
         layer_path = resolve_relative_path(stack_path, relative)
-        layer_payload = compose_document(
-            layer_path,
-            visited=visited,
-            expand_env=expand_env,
-            strict_env=strict_env,
-        )
+        layer_raw_payload = load_mapping_file(layer_path)
+        layer_kind = normalize_kind(layer_raw_payload.get("kind"))
+        if layer_kind == stack_kind:
+            layer_payload = _compose_stack_file(
+                layer_path,
+                layer_raw_payload,
+                stack_kind=stack_kind,
+                visited=active,
+                expand_env=expand_env,
+                strict_env=strict_env,
+            )
+        else:
+            layer_payload = compose_document(
+                layer_path,
+                visited=active,
+                expand_env=expand_env,
+                strict_env=strict_env,
+            )
         composed = deep_merge_dicts(composed, layer_payload)
 
     inline_payload = {

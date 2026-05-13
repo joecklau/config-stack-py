@@ -101,3 +101,70 @@ value: ${CONFIG_STACK_TEST_VALUE:-fallback}
     result = compose_config_file(stack, expand_env=True)
 
     assert result.config["value"] == "fallback"
+
+
+def test_compose_stack_layer_can_include_nested_stack(tmp_path: Path) -> None:
+    root = tmp_path / "config"
+    root.mkdir()
+    (root / "base.yaml").write_text(
+        """
+app:
+  name: demo
+nested:
+  a: 1
+""".lstrip(),
+        encoding="utf-8",
+    )
+    (root / "inner.stack.yaml").write_text(
+        """
+kind: config.stack
+layers:
+  - base.yaml
+overrides:
+  nested:
+    b: 2
+""".lstrip(),
+        encoding="utf-8",
+    )
+    (root / "outer.stack.yaml").write_text(
+        """
+kind: config.stack
+layers:
+  - inner.stack.yaml
+overrides:
+  nested:
+    a: 3
+""".lstrip(),
+        encoding="utf-8",
+    )
+
+    result = compose_config_file(root / "outer.stack.yaml")
+
+    assert result.config == {
+        "app": {"name": "demo"},
+        "nested": {"a": 3, "b": 2},
+    }
+    assert "layers" not in result.config
+    assert "overrides" not in result.config
+
+
+def test_compose_stack_detects_cycles_in_nested_stack_layers(tmp_path: Path) -> None:
+    (tmp_path / "a.stack.yaml").write_text(
+        """
+kind: config.stack
+layers:
+  - b.stack.yaml
+""".lstrip(),
+        encoding="utf-8",
+    )
+    (tmp_path / "b.stack.yaml").write_text(
+        """
+kind: config.stack
+layers:
+  - a.stack.yaml
+""".lstrip(),
+        encoding="utf-8",
+    )
+
+    with pytest.raises(ConfigStackError, match="cycle"):
+        compose_config_file(tmp_path / "a.stack.yaml")

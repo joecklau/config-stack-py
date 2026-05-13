@@ -27,6 +27,25 @@ result = compose_config_file("config.stack.yaml")
 resolved = result.config
 ```
 
+## Nested Stack Layers
+
+Stack layers can point to another stack file of the same `kind`.
+
+```yaml
+kind: config.stack
+layers:
+  - base.stack.yaml
+overrides:
+  app:
+    mode: dev
+```
+
+Nested stack layers are recursively composed, and outer stack `overrides` still
+win by normal deep-merge precedence.
+
+Cycle detection applies across both `extends` and nested `layers`. A stack-layer
+cycle raises `ConfigStackError`.
+
 ## Dependency Model
 
 During local development, consuming repositories can use an editable sibling
